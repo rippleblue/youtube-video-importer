@@ -31,8 +31,8 @@ define( 'MEKS_VIDEO_IMPORTER_PAGE_SLUG', 'meks_video_importer' );
  * The code that runs during plugin activation.
  * This action is documented in includes/class-meks-video-importer-activator.php
  */
-register_activation_hook( __FILE__, 'activate_meks_video_importer' );
-function activate_meks_video_importer() {
+register_activation_hook( __FILE__, 'activate_ripple_youtube_video_importer' );
+function activate_ripple_youtube_video_importer() {
     include_once wp_normalize_path( MEKS_VIDEO_IMPORTER_INCLUDES . 'class.meks-video-importer-easy-transition.php' );
     Meks_Video_Importer_Easy_Transition::getInstance();
 }
@@ -53,7 +53,7 @@ function meks_video_importer_start() {
 
     /* Load translation */
     load_plugin_textdomain(
-        'meks-video-importer',
+        'ripple-youtube-video-importer',
         false,
         dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
     );
