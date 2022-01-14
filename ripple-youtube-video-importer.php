@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: Meks Video Importer
+Plugin Name: Ripple Youtube Video Importer
 Description: Easily import YouTube and Vimeo videos in bulk to your posts, pages or any custom post type.
-Version: 1.0.9
-Author: Meks
-Author URI: http://mekshq.com
-Plugin URI: http://mekshq.com/plugin/video-importer/
-Text Domain: meks-video-importer
+Version: 1.0
+Author: rippleblue
+Author URI: https://github.com/rippleblue
+Plugin URI: https://github.com/rippleblue/youtube-video-importer
+Text Domain: ripple-youtube-video-importer
 Domain Path: /languages
 */
 
