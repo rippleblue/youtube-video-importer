@@ -39,7 +39,7 @@ Also, there are several smart options related to the import process itself. Choo
 
 == Frequently Asked Questions ==
 
-For any questions, error reports and suggestions please visit https://mekshq.com/contact/
+For any questions, error reports and suggestions please visit https://github.com/rippleblue/youtube-video-importer/issues
 
 == Changelog ==
 
