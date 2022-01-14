@@ -5,8 +5,8 @@
  *
  * @since    1.0.0
  */
-if ( !class_exists( 'Meks_Video_Importer_Options_Page' ) ):
-    final class Meks_Video_Importer_Options_Page {
+if ( !class_exists( 'Ripple_Youtube_Video_Importer_Options_Page' ) ):
+    final class Ripple_Youtube_Video_Importer_Options_Page {
 
     /**
      * Call this method to get singleton

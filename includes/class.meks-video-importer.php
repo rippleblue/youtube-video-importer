@@ -71,7 +71,7 @@ final class Meks_Video_Importer {
          * @since    1.0.0
          */
         require_once wp_normalize_path( MEKS_VIDEO_IMPORTER_INCLUDES . 'class.meks-video-importer-options-page.php' );
-        Meks_Video_Importer_Options_Page::getInstance();
+        Ripple_Youtube_Video_Importer_Options_Page::getInstance();
 
         /**
          * Works with saved templates
