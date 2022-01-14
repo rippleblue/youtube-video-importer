@@ -45,7 +45,7 @@ function activate_ripple_youtube_video_importer() {
  */
 
 /* Initialize plugin */
-function meks_video_importer_start() {
+function ripple_youtube_video_importer_start() {
 
     if ( !is_admin() ){
         return;
@@ -67,4 +67,4 @@ function meks_video_importer_start() {
     Meks_Video_Importer::getInstance();
 }
 
-add_action( 'plugins_loaded', 'meks_video_importer_start' );
+add_action( 'plugins_loaded', 'ripple_youtube_video_importer_start' );
