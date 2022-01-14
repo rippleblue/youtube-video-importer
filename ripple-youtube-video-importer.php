@@ -18,7 +18,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Define useful constants here
  */
-define( 'MEKS_VIDEO_IMPORTER_VERSION', '1.0.9' );
+define( 'MEKS_VIDEO_IMPORTER_VERSION', '1.0' );
 define( 'MEKS_VIDEO_IMPORTER_BASENAME', plugin_basename(__FILE__) );
 define( 'MEKS_VIDEO_IMPORTER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MEKS_VIDEO_IMPORTER_INCLUDES', trailingslashit( MEKS_VIDEO_IMPORTER_DIR . 'includes' ) );
@@ -26,7 +26,7 @@ define( 'MEKS_VIDEO_IMPORTER_PARTIALS', trailingslashit( MEKS_VIDEO_IMPORTER_DIR
 define( 'MEKS_VIDEO_IMPORTER_URL', plugin_dir_url( __FILE__ ) );
 define( 'MEKS_VIDEO_IMPORTER_ASSETS_URL', trailingslashit( MEKS_VIDEO_IMPORTER_URL . 'assets' ) );
 
-define( 'MEKS_VIDEO_IMPORTER_PAGE_SLUG', 'meks_video_importer' );
+define( 'MEKS_VIDEO_IMPORTER_PAGE_SLUG', 'ripple_youtube_video_importer' );
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-meks-video-importer-activator.php
