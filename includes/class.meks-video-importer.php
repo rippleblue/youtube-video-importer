@@ -1,6 +1,6 @@
 <?php
 
-final class Ripple_Youtube_Video_Importer {
+final class Meks_Video_Importer {
 
     /**
      * Call this method to get singleton
@@ -70,7 +70,7 @@ final class Ripple_Youtube_Video_Importer {
          *
          * @since    1.0.0
          */
-        require_once wp_normalize_path( MEKS_VIDEO_IMPORTER_INCLUDES . 'class.ripple-youtube-video-importer-options-page.php' );
+        require_once wp_normalize_path( MEKS_VIDEO_IMPORTER_INCLUDES . 'class.meks-video-importer-options-page.php' );
         Ripple_Youtube_Video_Importer_Options_Page::getInstance();
 
         /**
