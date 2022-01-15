@@ -9,7 +9,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Easily import YouTube and Vimeo videos in bulk to your posts, pages or any custom post type.
 
 == Description ==
-This code is borrowed from Meks Video Importer v1.0.9 under GPLv3 license. The orginal code is https://plugins.svn.wordpress.org/meks-video-importer
+This code is borrowed from Meks Video Importer v1.0.9 under GPLv3 license. The orginal code is https://plugins.svn.wordpress.org/meks-video-importer . It now conflicts with the original version of Meks Video Importer, you can't use both plugin at the same time.
 
 Meks Video Importer was originally created as a feature for our [Vlog WordPress theme](https://mekshq.com/theme/vlog/) but now it can be used on any WordPress website.
 
