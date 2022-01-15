@@ -63,8 +63,8 @@ function ripple_youtube_video_importer_start() {
      *
      * @since    1.0.0
      */
-    require_once MEKS_VIDEO_IMPORTER_INCLUDES . 'class.meks-video-importer.php';
-    Meks_Video_Importer::getInstance();
+    require_once MEKS_VIDEO_IMPORTER_INCLUDES . 'class.ripple-youtube-video-importer.php';
+    Ripple_Youtube_Video_Importer::getInstance();
 }
 
 add_action( 'plugins_loaded', 'ripple_youtube_video_importer_start' );
