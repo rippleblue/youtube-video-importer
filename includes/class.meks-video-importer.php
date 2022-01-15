@@ -1,6 +1,6 @@
 <?php
 
-final class Meks_Video_Importer {
+final class Ripple_Youtube_Video_Importer {
 
     /**
      * Call this method to get singleton
