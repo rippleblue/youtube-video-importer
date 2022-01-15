@@ -2,4 +2,3 @@
 /storage/*
 composer.lock
 .htaccess
-.idea

@@ -8,9 +8,8 @@ use Proxy\Config;
 use Proxy\Http\Request;
 use Proxy\Proxy;
 
-if (!function_exists('curl_version')) {
-    die("cURL extension is not loaded!");
-}
+// start the session
+session_start();
 
 // load config...
 Config::load('./config.php');
@@ -22,13 +21,8 @@ if (!Config::get('app_key')) {
     die("app_key inside config.php cannot be empty!");
 }
 
-if (!Config::get('expose_php')) {
-    header_remove('X-Powered-By');
-}
-
-// start the session
-if (Config::get('session_enable')) {
-    session_start();
+if (!function_exists('curl_version')) {
+    die("cURL extension is not loaded!");
 }
 
 // how are our URLs be generated from this point? this must be set here so the proxify_url function below can make use of it
@@ -38,10 +32,8 @@ if (Config::get('url_mode') == 2) {
     Config::set('encryption_key', md5(Config::get('app_key') . session_id()));
 }
 
-if (Config::get('session_enable')) {
-    // very important!!! otherwise requests are queued while waiting for session file to be unlocked
-    session_write_close();
-}
+// very important!!! otherwise requests are queued while waiting for session file to be unlocked
+session_write_close();
 
 // form submit in progress...
 if (isset($_POST['url'])) {
