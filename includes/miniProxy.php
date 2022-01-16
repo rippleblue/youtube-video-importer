@@ -54,7 +54,7 @@ $startURL = "";
 //When no $startURL is configured above, miniProxy will show its own landing page with a URL form field
 //and the configured example URL. The example URL appears in the instructional text on the miniProxy landing page,
 //and is proxied when pressing the 'Proxy It!' button on the landing page if its URL form is left blank.
-$landingExampleURL = "https://example.net";
+$landingExampleURL = "https://www.youtube.com";
 
 /****************************** END CONFIGURATION ******************************/
 
@@ -438,12 +438,10 @@ if (isset($responseInfo["content_type"])) $contentType = $responseInfo["content_
 if (stripos($contentType, "text/html") !== false) {
 
   //Attempt to normalize character encoding.
-  /* this code has encoding problems with youtube webpage
   $detectedEncoding = mb_detect_encoding($responseBody, "UTF-8, ISO-8859-1");
   if ($detectedEncoding) {
     $responseBody = mb_convert_encoding($responseBody, "HTML-ENTITIES", $detectedEncoding);
   }
-  */
 
   //Parse the DOM.
   $doc = new DomDocument();
