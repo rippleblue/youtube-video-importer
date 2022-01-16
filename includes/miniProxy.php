@@ -208,7 +208,7 @@ function makeRequest($url) {
   //If an `origin` header is present in the request, rewrite it to point to the correct origin.
   if (in_array("origin", $removedHeaders)) {
     $urlParts = parse_url($url);
-    $port = $urlParts["port"];
+    $port = isset($urlParts["port"]) ? $urlParts["port"] : '';
     $curlRequestHeaders[] = "Origin: " . $urlParts["scheme"] . "://" . $urlParts["host"] . (empty($port) ? "" : ":" . $port);
   };
   curl_setopt($ch, CURLOPT_HTTPHEADER, $curlRequestHeaders);
