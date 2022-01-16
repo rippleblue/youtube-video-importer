@@ -598,7 +598,7 @@ if (stripos($contentType, "text/html") !== false) {
   echo proxifyCSS($responseBody, $url);
 } else if (stripos($contentType, "javascript") !== false || stripos($contentType, "json") !== false) {
   // replace http(s):// schema in the content
-  preg_replace("/https?:\/\//", PROXY_PREFIX . 'https://', $responseBody)
+  preg_replace("/https?:\/\//", PROXY_PREFIX . 'https://', $responseBody);
 } else { //This isn't a web page or CSS, so serve unmodified through the proxy with the correct headers (images, JavaScript, etc.)
   header("Content-Length: " . strlen($responseBody), true);
   echo $responseBody;
