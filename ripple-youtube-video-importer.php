@@ -44,19 +44,12 @@ function activate_ripple_youtube_video_importer() {
  * @since    1.0.0
  */
 
-function callback_init_proxy() {
-    add_rewrite_rule( '^tinywall/', plugin_dir_url(__FILE__) . 'includes/miniProxy.php', 'top' );
-}
-
 /* Initialize plugin */
 function ripple_youtube_video_importer_start() {
 
     if ( !is_admin() ){
         return;
     }
-
-    /* Add proxy route */
-    add_action( 'init', 'callback_init_proxy' );
 
     /* Load translation */
     load_plugin_textdomain(
