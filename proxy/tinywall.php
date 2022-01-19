@@ -383,7 +383,7 @@ function reconstructHTML($responseBody, $url) {
 
     // Register service worker javascript code
     $swFile = './sw.php?base=' . base64_encode(rel2abs('/', $url)) . '&proxy=' . base64_encode(PROXY_PREFIX)
-    $registerJS = <<<EOF
+    $registerJS = "
     (async () => {
       const registration = await navigator.serviceWorker.register($swFile);
 
@@ -398,7 +398,7 @@ function reconstructHTML($responseBody, $url) {
         await registration.unregister();
       });
     })();
-EOF;
+    "
 
     $scriptElem = $doc->createElement("script", $registerJS);
     $scriptElem->setAttribute("type", "text/javascript");
