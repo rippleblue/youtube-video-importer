@@ -398,7 +398,7 @@ function reconstructHTML($responseBody, $url) {
         await registration.unregister();
       });
     })();
-    JS;
+JS;
 
     $scriptElem = $doc->createElement("script", $registerJS);
     $scriptElem->setAttribute("type", "text/javascript");
