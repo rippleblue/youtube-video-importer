@@ -1,10 +1,10 @@
 <?php
-header('Content-Type: text/javascript')
-$baseUrl = isset($_GET['base']) ? base64_decode($_GET['base']) : ''
-$proxyPrefix = isset($_GET['proxy']) ? base64_decode($_GET['proxy']) : $_SERVER['REQUEST_URI'] . '?'
+header('Content-Type: text/javascript');
+$baseUrl = isset($_GET['base']) ? base64_decode($_GET['base']) : '';
+$proxyPrefix = isset($_GET['proxy']) ? base64_decode($_GET['proxy']) : $_SERVER['REQUEST_URI'] . '?';
 ?>
-const proxyPrefix = '<?php echo($proxyPrefix) ?>'
-const baseUrl = '<?php echo($baseUrl) ?>'
+const proxyPrefix = '<?php echo $proxyPrefix; ?>'
+const baseUrl = '<?php echo $baseUrl; ?>'
 
 const handleInstall = () => {
   console.log('[SW] service worker installed');
