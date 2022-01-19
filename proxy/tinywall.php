@@ -32,7 +32,7 @@ $blacklistPatterns = [
 ];
 
 //To enable CORS (cross-origin resource sharing) for proxied sites, set $forceCORS to true.
-$forceCORS = false;
+$forceCORS = true;
 
 //Set to false to allow sites on the local network (where miniProxy is running) to be proxied.
 $disallowLocal = true;
