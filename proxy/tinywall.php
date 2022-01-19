@@ -392,10 +392,10 @@ function reconstructHTML($responseBody, $url) {
   if ($prependElem != null) {
 
     // Register service worker javascript code
-    $swFile = './sw.php?base=' . base64_encode(rel2abs('/', $url)) . '&proxy=' . base64_encode(PROXY_PREFIX);
+    $swFile = '"./sw.php?base=' . base64_encode(rel2abs('/', $url)) . '&proxy=' . base64_encode(PROXY_PREFIX) . '"';
     $registerJS = <<<JS
     (async () => {
-      const registration = await navigator.serviceWorker.register($swFile);
+      const registration = await navigator.serviceWorker.register('$swFile');
 
       try {
         await navigator.serviceWorker.ready
