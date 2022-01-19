@@ -75,6 +75,16 @@ function isValidURL($url) {
     }
     return false;
   }
+  
+  //Validates a URL against the blacklist.
+  function passesBlacklist($url) {
+    foreach ($GLOBALS['blacklistPatterns'] as $pattern) {
+      if (preg_match($pattern, $url)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   function isLocal($url) {
     //First, generate a list of IP addresses that correspond to the requested URL.
@@ -412,6 +422,11 @@ JS;
 /*
   Process proxy request
 */
+//Extract and sanitize the requested URL, handling cases where forms have been rewritten to point to the proxy.
+if (isset($_POST["miniProxyFormAction"])) {
+  $url = $_POST["miniProxyFormAction"];
+  unset($_POST["miniProxyFormAction"]);
+} else {
   $queryParams = [];
   parse_str($_SERVER["QUERY_STRING"], $queryParams);
   //If the miniProxyFormAction field appears in the query string, make $url start with its value, and rebuild the the query string without it.
@@ -422,6 +437,7 @@ JS;
   } else {
     $url = substr($_SERVER["REQUEST_URI"], strlen($_SERVER["SCRIPT_NAME"]) + 1);
   }
+}
 
 if (strpos($url, ":/") !== strpos($url, "://")) {
     //Work around the fact that some web servers (e.g. IIS 8.5) change double slashes appearing in the URL to a single slash.
