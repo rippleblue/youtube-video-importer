@@ -406,7 +406,7 @@ JS;
     $prependElem->insertBefore($scriptElem, $prependElem->firstChild);
   }
 
-  return $doc->saveHTML()
+  return $doc->saveHTML();
 }
 
 /*
