@@ -313,6 +313,12 @@ function proxifySrcset($srcset, $baseURL) {
 
 // Rewrite the html response, replace the relative url to proxied absolute url
 function reconstructHTML($responseBody, $url) {
+  //Attempt to normalize character encoding.
+  $detectedEncoding = mb_detect_encoding($responseBody, "UTF-8, ISO-8859-1, GBK, GB2312");
+  if ($detectedEncoding) {
+    $responseBody = mb_convert_encoding($responseBody, "HTML-ENTITIES", $detectedEncoding);
+  }
+
   //Parse the DOM.
   $doc = new DomDocument();
   @$doc->loadHTML($responseBody);
@@ -392,7 +398,7 @@ function reconstructHTML($responseBody, $url) {
   if ($prependElem != null) {
 
     // Register service worker javascript code
-    $swFile = '"./sw.php?base=' . base64_encode(rel2abs('/', $url)) . '&proxy=' . base64_encode(PROXY_PREFIX) . '"';
+    $swFile = './sw.php?base=' . base64_encode(rel2abs('/', $url)) . '&proxy=' . base64_encode(PROXY_PREFIX);
     $registerJS = <<<JS
     (async () => {
       const registration = await navigator.serviceWorker.register('$swFile');
@@ -416,7 +422,7 @@ JS;
     $prependElem->insertBefore($scriptElem, $prependElem->firstChild);
   }
 
-  return $doc->saveHTML();
+  return mb_convert_encoding($doc->saveHTML(), $detectedEncoding, "HTML-ENTITIES");
 }
 
 /*
