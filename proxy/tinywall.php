@@ -232,6 +232,10 @@ function makeRequest($url) {
   //Set the request URL.
   curl_setopt($ch, CURLOPT_URL, $url);
 
+  // Output debug info to file /tmp
+  curl_setopt($curl, CURLOPT_VERBOSE, true);
+  curl_setopt($curl, CURLOPT_STDERR, fopen('/tmp/curl.log', 'w+'));
+
   //Make the request.
   $response = curl_exec($ch);
   $responseInfo = curl_getinfo($ch);
