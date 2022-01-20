@@ -216,8 +216,8 @@ function makeRequest($url) {
       //More info here: http://stackoverflow.com/questions/8899239/http-raw-post-data-not-being-populated-after-upgrade-to-php-5-3
       $contentType = '';
       foreach ($browserRequestHeaders as $key => $val) {
-        if (tolower($key) == 'content-type') {
-          $contentType = tolower($val);
+        if (strtolower($key) == 'content-type') {
+          $contentType = strtolower($val);
           break;
         }
       }
