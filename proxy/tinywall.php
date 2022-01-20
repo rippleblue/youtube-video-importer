@@ -222,7 +222,7 @@ function makeRequest($url) {
       curl_setopt($ch, CURLOPT_PUT, true);
       curl_setopt($ch, CURLOPT_INFILE, fopen("php://input", "r"));
     break;
-    case default:
+    default:
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_SERVER["REQUEST_METHOD"]);
     break;
   }
