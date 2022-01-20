@@ -214,9 +214,21 @@ function makeRequest($url) {
       //but the php://input method works. This is likely to be flaky
       //across different server environments.
       //More info here: http://stackoverflow.com/questions/8899239/http-raw-post-data-not-being-populated-after-upgrade-to-php-5-3
-      $postData = [];
-      parse_str(file_get_contents("php://input"), $postData);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+      $contentType = '';
+      foreach ($browserRequestHeaders as $key => $val) {
+        if (tolower($key) == 'content-type') {
+          $contentType = tolower($val);
+          break;
+        }
+      }
+      $postContent = file_get_contents("php://input");
+      if (empty($contentType) && stripos($contentType, 'x-www-form-urlencoded') >= 0) {
+        $postData = [];
+        parse_str($postContent, $postData);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+      } else {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postContent);
+      }
     break;
     case "PUT":
       curl_setopt($ch, CURLOPT_PUT, true);
