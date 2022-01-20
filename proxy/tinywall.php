@@ -234,9 +234,9 @@ function makeRequest($url) {
 
   // Output debug info to file /tmp
   curl_setopt($ch, CURLOPT_FAILONERROR, false);
-  curl_setopt($ch, CURLOPT_HTTP200ALIASES, array(400));
-  curl_setopt($curl, CURLOPT_VERBOSE, true);
-  curl_setopt($curl, CURLOPT_STDERR, fopen('/tmp/curl.log', 'w+'));
+  curl_setopt($ch, CURLOPT_HTTP200ALIASES, array(405));
+  curl_setopt($ch, CURLOPT_VERBOSE, true);
+  curl_setopt($ch, CURLOPT_STDERR, fopen('/tmp/curl.log', 'w+'));
 
   //Make the request.
   $response = curl_exec($ch);
