@@ -507,7 +507,7 @@ if ($forceCORS) {
   //Explicit [ $replace = true ] is used for these headers even though this is PHP's default behavior.
 
   //Allow access from any origin.
-  header("Access-Control-Allow-Origin: *", true);
+  header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN'], true);
   header("Access-Control-Allow-Credentials: true", true);
 
   //Handle CORS headers received during OPTIONS requests.
@@ -524,12 +524,15 @@ if ($forceCORS) {
 }
 
 $contentType = "";
-if (isset($responseInfo["content_type"])) $contentType = $responseInfo["content_type"];
+if (isset($responseInfo["content_type"])) {
+  $contentType = $responseInfo["content_type"];
+}
 
 //This is presumably a web page, so attempt to proxify the DOM.
 if (stripos($contentType, "text/html") !== false) {
   echo "<!-- Proxified page constructed by tinywallProxy -->\n" . reconstructHTML($responseBody, $url);
-} else { //This isn't a web page or CSS, so serve unmodified through the proxy with the correct headers (images, JavaScript, etc.)
+} else { 
+  //This isn't a web page or CSS, so serve unmodified through the proxy with the correct headers (images, JavaScript, etc.)
   header("Content-Length: " . strlen($responseBody), true);
   echo $responseBody;
 }

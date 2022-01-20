@@ -44,7 +44,7 @@ const handleFetch = async (e) => {
   console.log(`[SW] proxying request ${reqMethod}: ${reqUrl} -> ${redirectUrl}`);
   let redirectReq = request.clone();
   redirectReq.url = redirectUrl;
-  e.respondWith(fetch(redirectReq, { mode: 'cors', method: reqMethod, credentials: 'include'}));
+  e.respondWith(fetch(redirectUrl, { mode: 'cors', method: reqMethod, credentials: 'include'}));
 };
 
 self.addEventListener('install', handleInstall);
