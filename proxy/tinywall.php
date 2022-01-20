@@ -222,6 +222,9 @@ function makeRequest($url) {
       curl_setopt($ch, CURLOPT_PUT, true);
       curl_setopt($ch, CURLOPT_INFILE, fopen("php://input", "r"));
     break;
+    case default:
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_SERVER["REQUEST_METHOD"]);
+    break;
   }
 
   //Other cURL options.
@@ -233,8 +236,6 @@ function makeRequest($url) {
   curl_setopt($ch, CURLOPT_URL, $url);
 
   // Output debug info to file /tmp
-  curl_setopt($ch, CURLOPT_FAILONERROR, false);
-  curl_setopt($ch, CURLOPT_HTTP200ALIASES, array(405));
   curl_setopt($ch, CURLOPT_VERBOSE, true);
   curl_setopt($ch, CURLOPT_STDERR, fopen('/tmp/curl.log', 'w+'));
 
