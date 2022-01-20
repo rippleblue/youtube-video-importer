@@ -516,6 +516,7 @@ if ($forceCORS) {
   }
   header("Access-Control-Allow-Origin: $serverOrigin", true);
   header("Access-Control-Allow-Credentials: true", true);
+  header("Access-Control-Allow-Methods: GET, PUT, POST, DELETE, HEAD", true);
 
   //Handle CORS headers received during OPTIONS requests.
   if ($_SERVER["REQUEST_METHOD"] == "OPTIONS") {
