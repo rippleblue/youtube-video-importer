@@ -174,7 +174,8 @@ function makeRequest($url) {
       "Accept-Encoding", //Throw away the browser's Accept-Encoding header if any and let cURL make the request using gzip if possible.
       "Content-Length",
       "Host",
-      "Origin"
+      "Origin",
+      "Referer"
     ]
   );
 
@@ -192,10 +193,15 @@ function makeRequest($url) {
   }
   //Any `origin` header sent by the browser will refer to the proxy itself.
   //If an `origin` header is present in the request, rewrite it to point to the correct origin.
+  $urlParts = parse_url($url);
+  $port = isset($urlParts["port"]) ? $urlParts["port"] : '';
+  $originHeader = $urlParts["scheme"] . "://" . $urlParts["host"] . (empty($port) ? "" : ":" . $port);
   if (in_array("origin", $removedHeaders)) {
-    $urlParts = parse_url($url);
-    $port = isset($urlParts["port"]) ? $urlParts["port"] : '';
-    $curlRequestHeaders[] = "Origin: " . $urlParts["scheme"] . "://" . $urlParts["host"] . (empty($port) ? "" : ":" . $port);
+    $curlRequestHeaders[] = "Origin: $originHeader";
+  }
+  // Set referer to origin up to strict-origin-when-cross-origin policy
+  if (in_array("referer", $removedHeaders)) {
+    $curlRequestHeaders[] = "Referer: $originHeader";
   }
   curl_setopt($ch, CURLOPT_HTTPHEADER, $curlRequestHeaders);
 
@@ -516,7 +522,6 @@ if ($forceCORS) {
   }
   header("Access-Control-Allow-Origin: $serverOrigin", true);
   header("Access-Control-Allow-Credentials: true", true);
-  header("Access-Control-Allow-Methods: GET, PUT, POST, DELETE, HEAD", true);
 
   //Handle CORS headers received during OPTIONS requests.
   if ($_SERVER["REQUEST_METHOD"] == "OPTIONS") {
