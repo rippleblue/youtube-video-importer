@@ -149,6 +149,7 @@ $prefixHost = $_SERVER["HTTP_HOST"];
 $prefixHost = strpos($prefixHost, ":") ? implode(":", explode(":", $_SERVER["HTTP_HOST"], -1)) : $prefixHost;
 
 define("PROXY_PREFIX", "http" . (isset($_SERVER["HTTPS"]) ? "s" : "") . "://" . $prefixHost . $prefixPort . $_SERVER["SCRIPT_NAME"] . "?");
+define("SERVER_ORIGIN", "http" . (isset($_SERVER["HTTPS"]) ? "s" : "") . "://" . $prefixHost . $prefixPort);
 
 //Makes an HTTP request via cURL, using request data that was passed directly to this script.
 function makeRequest($url) {
@@ -507,7 +508,7 @@ if ($forceCORS) {
   //Explicit [ $replace = true ] is used for these headers even though this is PHP's default behavior.
 
   //Allow access from any origin.
-  header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN'], true);
+  header("Access-Control-Allow-Origin: " . SERVER_ORIGIN, true);
   header("Access-Control-Allow-Credentials: true", true);
 
   //Handle CORS headers received during OPTIONS requests.
