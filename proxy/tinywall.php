@@ -508,7 +508,13 @@ if ($forceCORS) {
   //Explicit [ $replace = true ] is used for these headers even though this is PHP's default behavior.
 
   //Allow access from any origin.
-  header("Access-Control-Allow-Origin: " . SERVER_ORIGIN, true);
+  $serverOrigin = SERVER_ORIGIN;
+  if (isset($_SERVER["HTTP_ORIGIN"])) {
+    $serverOrigin = $_SERVER["HTTP_ORIGIN"];
+  } else if (isset($_SERVER['HTTP_REFERER'])) {
+    $serverOrigin = $_SERVER['HTTP_REFERER'];
+  }
+  header("Access-Control-Allow-Origin: $serverOrigin", true);
   header("Access-Control-Allow-Credentials: true", true);
 
   //Handle CORS headers received during OPTIONS requests.
