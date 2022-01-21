@@ -6,34 +6,34 @@ $proxyPrefix = isset($_GET['proxy']) ? base64_decode($_GET['proxy']) : $_SERVER[
 const proxyPrefix = '<?php echo $proxyPrefix; ?>'
 const baseUrl = '<?php echo $baseUrl; ?>'
 
-
-const handleInstall = () => {
+const handleInstall = (e) => {
   console.log('[SW] service worker installed');
-  self.skipWaiting();
+  e.waitUntil(self.skipWaiting());
 };
 
-const handleActivate = () => {
+const handleActivate = (e) => {
   console.log('[SW] service worker activated');
-  return self.clients.claim();
+  e.waitUntil(self.clients.claim());
 };
-
-const proxyHost = (new URL(proxyPrefix)).origin
 
 const handleFetch = async (request) => {
   const {method: reqMethod, url: reqUrl, headers: reqHeaders} = request;
 
-  // Extract remote url from request
-  let redirectUrl = '';
+  // Extract origin part from request url
+  const proxyOrigin = (new URL(proxyPrefix)).origin;
+  const reqOrigin = (new URL(reqUrl)).origin;
+  let redirectUrl = proxyPrefix + reqUrl;
 
-  // It's may be a bad relative url
-  if (reqUrl.startsWith(proxyHost) || reqUrl.startsWith('http://localhost')) {
-    redirectUrl = proxyPrefix + baseUrl + reqUrl.substr((new URL(reqUrl)).origin.length)
+  // Rewrite url to proxy server
+  if (reqOrigin == proxyOrigin || reqOrigin.indexOf('localhost') > 0) {
+    // Wrong url written by browser, we need to replace the origin with proxy prefix and target site's base url
+    redirectUrl = proxyPrefix + baseUrl + reqUrl.substr((new URL(reqUrl)).origin.length);
   } else if (reqUrl.startsWith('//')) {
+    // Add default http scheme to url
     redirectUrl = proxyPrefix + 'http:' + reqUrl;
   } else if (!reqUrl.startsWith('http')) {
+    // We assume it's the path string, add base url to the path
     redirectUrl = proxyPrefix + baseUrl + reqUrl;
-  } else {
-    redirectUrl = proxyPrefix + reqUrl;
   }
 
   console.log(`[SW] proxying request ${reqMethod}: ${reqUrl} -> ${redirectUrl}`);
