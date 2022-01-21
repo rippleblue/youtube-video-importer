@@ -38,15 +38,8 @@ const handleFetch = async (request) => {
 
   console.log(`[SW] proxying request ${reqMethod}: ${reqUrl} -> ${redirectUrl}`);
   const init = { mode: 'cors', method: reqMethod, headers: reqHeaders, credentials: 'include' }
-  if (reqMethod === 'POST' && !request.bodyUsed) {
-    if (request.body) {
-      init.body = request.body
-    } else {
-      const buf = await request.arrayBuffer()
-      if (buf.byteLength > 0) {
-        init.body = buf
-      }
-    }
+  if (reqMethod === 'POST') {
+    init.body = await request.clone().text();
   }
 
   return fetch(redirectUrl, init);
