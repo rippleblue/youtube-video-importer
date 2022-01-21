@@ -8,7 +8,7 @@ const baseUrl = '<?php echo $baseUrl; ?>'
 
 const handleInstall = (e) => {
   console.log('[SW] service worker installed');
-  e.waitUntil(self.skipWaiting());
+  //e.waitUntil(self.skipWaiting());
 };
 
 const handleActivate = (e) => {
