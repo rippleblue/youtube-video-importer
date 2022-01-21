@@ -436,7 +436,7 @@ function reconstructHTML($responseBody, $url) {
             console.error('error registering SW:', err)
           }
           window.addEventListener('beforeunload', async () => {
-            await registration.unregister();
+            //await registration.unregister();
           });
         })();
     }
