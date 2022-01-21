@@ -426,20 +426,20 @@ function reconstructHTML($responseBody, $url) {
     // Register service worker javascript code
     $swFile = './sw.php?base=' . base64_encode(rel2abs('/', $url)) . '&proxy=' . base64_encode(PROXY_PREFIX);
     $registerJS = <<<JS
-    (async () => {
-      const registration = await navigator.serviceWorker.register('$swFile');
-
-      try {
-        await navigator.serviceWorker.ready
-        console.log('[SW] proxy server ready');
-      } catch(err) {
-        console.error('error registering SWOPR:', err)
-      }
-
-      window.addEventListener('beforeunload', async () => {
-        await registration.unregister();
-      });
-    })();
+    if ('serviceWorker' in navigator) {
+        (async () => {
+          const registration = await navigator.serviceWorker.register("$swFile");
+          try {
+            await navigator.serviceWorker.ready
+            console.log('[SW] proxy server ready');
+          } catch(err) {
+            console.error('error registering SW:', err)
+          }
+          window.addEventListener('beforeunload', async () => {
+            await registration.unregister();
+          });
+        })();
+    }
 JS;
 
     $scriptElem = $doc->createElement("script", $registerJS);

@@ -6,6 +6,7 @@ $proxyPrefix = isset($_GET['proxy']) ? base64_decode($_GET['proxy']) : $_SERVER[
 const proxyPrefix = '<?php echo $proxyPrefix; ?>'
 const baseUrl = '<?php echo $baseUrl; ?>'
 
+
 const handleInstall = () => {
   console.log('[SW] service worker installed');
   self.skipWaiting();
@@ -18,35 +19,49 @@ const handleActivate = () => {
 
 const proxyHost = (new URL(proxyPrefix)).origin
 
-const handleFetch = async (e) => {
-  const {request} = e;
-  const {method: reqMethod, url: reqUrl} = request;
-  console.log(`[SW] handle request ${reqUrl}`);
+const handleFetch = async (request) => {
+  const {method: reqMethod, url: reqUrl, headers: reqHeaders} = request;
 
   // Extract remote url from request
   let redirectUrl = '';
-  if (reqUrl.startsWith(proxyPrefix)) {
-    // Absolute url with proxy, we don't need to change it.
-    redirectUrl = reqUrl;
+
+  // It's may be a bad relative url
+  if (reqUrl.startsWith(proxyHost) || reqUrl.startsWith('http://localhost')) {
+    redirectUrl = proxyPrefix + baseUrl + reqUrl.substr((new URL(reqUrl)).origin.length)
+  } else if (reqUrl.startsWith('//')) {
+    redirectUrl = proxyPrefix + 'http:' + reqUrl;
+  } else if (!reqUrl.startsWith('http')) {
+    redirectUrl = proxyPrefix + baseUrl + reqUrl;
   } else {
-    // It's may be a bad relative url
-    if (reqUrl.startsWith(proxyHost) || reqUrl.startsWith('http://localhost')) {
-      redirectUrl = proxyPrefix + baseUrl + reqUrl.substr((new URL(reqUrl)).origin.length)
-    } else if (reqUrl.startsWith('//')) {
-      redirectUrl = proxyPrefix + 'http:' + reqUrl;
-    } else if (!reqUrl.startsWith('http')) {
-      redirectUrl = proxyPrefix + baseUrl + reqUrl;
-    } else {
-      redirectUrl = proxyPrefix + reqUrl;
-    }
+    redirectUrl = proxyPrefix + reqUrl;
   }
 
   console.log(`[SW] proxying request ${reqMethod}: ${reqUrl} -> ${redirectUrl}`);
-  let redirectReq = request.clone();
-  redirectReq.url = redirectUrl;
-  e.respondWith(fetch(redirectUrl, { mode: 'cors', method: reqMethod, credentials: 'include'}));
+  const init = { mode: 'cors', method: reqMethod, headers: reqHeaders, credentials: 'include' }
+  if (reqMethod === 'POST' && !request.bodyUsed) {
+    if (request.body) {
+      init.body = request.body
+    } else {
+      const buf = await request.arrayBuffer()
+      if (buf.byteLength > 0) {
+        init.body = buf
+      }
+    }
+  }
+
+  return fetch(redirectUrl, init);
+};
+
+const handleRequest = event => {
+  const reqUrl = new URL(event.request.url);
+  console.log(`[SW] handle request ${reqUrl.href}`);
+  if (reqUrl.href.startsWith(proxyPrefix) || !reqUrl.protocol.startsWith('http')) {
+    console.log(`No need to proxy ${reqUrl.href}`)
+    return;
+  }
+  event.respondWith(handleFetch(event.request));
 };
 
 self.addEventListener('install', handleInstall);
 self.addEventListener('activate', handleActivate);
-self.addEventListener('fetch', handleFetch);
+self.addEventListener('fetch', handleRequest);
