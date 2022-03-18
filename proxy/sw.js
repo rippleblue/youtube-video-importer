@@ -4,7 +4,7 @@ if (q > 0) {
   prefix = prefix.substring(0, q + 1)
 }
 const proxyPrefix = prefix;
-const baseUrl = new URL(location.search.substring(1)).origin;
+const baseUrl = atob(new URL(location.href).searchParams.get('t'))
 
 const handleInstall = (e) => {
   console.log('[SW] service worker installed');
