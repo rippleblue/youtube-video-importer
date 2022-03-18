@@ -29,6 +29,9 @@ const handleFetch = async (request) => {
   } else if (!reqUrl.startsWith('http')) {
     // We assume it's the path string, add base url to the path
     redirectUrl = proxyPrefix + baseUrl + reqUrl;
+  } else if (reqOrigin == proxyOrigin && reqUrl.indexOf("tinywall.js") >= 0) {
+    // White url
+    redirectUrl = reqUrl;
   }
 
   console.log(`[SW] proxying request ${reqMethod}: ${reqUrl} -> ${redirectUrl}`);
