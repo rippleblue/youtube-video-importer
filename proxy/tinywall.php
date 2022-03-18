@@ -422,27 +422,8 @@ function reconstructHTML($responseBody, $url) {
   //what's coming back is most likely not actually HTML.
   //TODO: Do this check before attempting to do any sort of DOM parsing?
   if ($prependElem != null) {
-
-    // Register service worker javascript code
-    $swFile = './sw.php?base=' . base64_encode(rel2abs('/', $url)) . '&proxy=' . base64_encode(PROXY_PREFIX);
-    $registerJS = <<<JS
-    if ('serviceWorker' in navigator) {
-        (async () => {
-          const registration = await navigator.serviceWorker.register("$swFile");
-          try {
-            await navigator.serviceWorker.ready
-            console.log('[SW] proxy server ready');
-          } catch(err) {
-            console.error('error registering SW:', err)
-          }
-          window.addEventListener('beforeunload', async () => {
-            //await registration.unregister();
-          });
-        })();
-    }
-JS;
-
-    $scriptElem = $doc->createElement("script", $registerJS);
+    $scriptElem = $doc->createElement("script");
+    $scriptElem->setAttribute("src", "tinywall.js");
     $scriptElem->setAttribute("type", "text/javascript");
 
     $prependElem->insertBefore($scriptElem, $prependElem->firstChild);
