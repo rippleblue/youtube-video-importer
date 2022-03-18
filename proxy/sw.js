@@ -1,10 +1,11 @@
-let prefix = location.href
-const q = prefix.indexOf('?')
+let prefix = location.href;
+const q = prefix.indexOf('?');
 if (q > 0) {
-  prefix = prefix.substring(0, q + 1)
+  prefix = prefix.substring(0, q + 1);
 }
 const proxyPrefix = prefix;
-const baseUrl = atob(new URL(location.href).searchParams.get('t'))
+const baseUrl = atob(new URL(location.href).searchParams.get('t'));
+console.log(`[SW] Init PREFIX=${proxyPrefix}, BASE_URL=${baseUrl}`);
 
 const handleInstall = (e) => {
   console.log('[SW] service worker installed');
