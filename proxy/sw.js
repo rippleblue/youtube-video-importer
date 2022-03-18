@@ -1,10 +1,6 @@
-let prefix = location.href;
-const q = prefix.indexOf('?');
-if (q > 0) {
-  prefix = prefix.substring(0, q + 1);
-}
-const proxyPrefix = prefix;
-const baseUrl = atob(new URL(location.href).searchParams.get('t'));
+let params = new URL(location.href).searchParams;
+const proxyPrefix = atob(params.get('p'));
+const baseUrl = atob(params.get('t'));
 console.log(`[SW] Init PREFIX=${proxyPrefix}, BASE_URL=${baseUrl}`);
 
 const handleInstall = (e) => {
@@ -26,7 +22,10 @@ const handleFetch = async (request) => {
   let redirectUrl = proxyPrefix + reqUrl;
 
   // Rewrite url to proxy server
-  if (reqOrigin == proxyOrigin || reqOrigin.indexOf('localhost') > 0) {
+  if (reqOrigin == proxyOrigin && reqUrl.indexOf("tinywall.js") >= 0) {
+    // White url
+    return fetch(request);
+  } else if (reqOrigin == proxyOrigin || reqOrigin.indexOf('localhost') > 0) {
     // Wrong url written by browser, we need to replace the origin with proxy prefix and target site's base url
     redirectUrl = proxyPrefix + baseUrl + reqUrl.substr((new URL(reqUrl)).origin.length);
   } else if (reqUrl.startsWith('//')) {
@@ -35,9 +34,6 @@ const handleFetch = async (request) => {
   } else if (!reqUrl.startsWith('http')) {
     // We assume it's the path string, add base url to the path
     redirectUrl = proxyPrefix + baseUrl + reqUrl;
-  } else if (reqOrigin == proxyOrigin && reqUrl.indexOf("tinywall.js") >= 0) {
-    // White url
-    redirectUrl = reqUrl;
   }
 
   console.log(`[SW] proxying request ${reqMethod}: ${reqUrl} -> ${redirectUrl}`);

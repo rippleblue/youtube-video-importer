@@ -247,7 +247,7 @@ function initHook(global) {
 // Initialize proxy
 if ('serviceWorker' in navigator) {
     (async () => {
-        const registration = await navigator.serviceWorker.register("sw.js?t=" + btoa(TARGET_ORIGIN));
+        const registration = await navigator.serviceWorker.register(`sw.js?p=${btoa(PREFIX)}&t=${btoa(TARGET_ORIGIN)}`);
         try {
             await navigator.serviceWorker.ready
             console.log('[SW] proxy server ready');
