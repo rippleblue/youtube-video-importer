@@ -117,6 +117,14 @@ function initHook(global) {
         }
     )
 
+    // hook Image src
+    const imgProto = global['Image'].prototype
+    prop(imgProto, 'src', null,
+        setter => function (val) {
+            setter.call(this, proxyUrl(val))
+            console.log(`proxy img.src=${val} to ` + this.src)
+        }
+    )
 
     // hook AJAX API
     const xhrProto = global['XMLHttpRequest'].prototype
