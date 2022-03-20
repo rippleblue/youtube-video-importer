@@ -22,10 +22,7 @@ const handleFetch = async (request) => {
   let redirectUrl = proxyPrefix + reqUrl;
 
   // Rewrite url to proxy server
-  if (reqOrigin == proxyOrigin && reqUrl.indexOf("tinywall.js") >= 0) {
-    // White url
-    return fetch(request);
-  } else if (reqOrigin == proxyOrigin || reqOrigin.indexOf('localhost') > 0) {
+  if (reqOrigin == proxyOrigin || reqOrigin.indexOf('localhost') > 0) {
     // Wrong url written by browser, we need to replace the origin with proxy prefix and target site's base url
     redirectUrl = proxyPrefix + baseUrl + reqUrl.substr((new URL(reqUrl)).origin.length);
   } else if (reqUrl.startsWith('//')) {
@@ -48,7 +45,8 @@ const handleFetch = async (request) => {
 const handleRequest = event => {
   const reqUrl = new URL(event.request.url);
   console.log(`[SW] handle request ${reqUrl.href}`);
-  if (reqUrl.href.startsWith(proxyPrefix) || !reqUrl.protocol.startsWith('http')) {
+  if (reqUrl.href.startsWith(proxyPrefix) || !reqUrl.protocol.startsWith('http')
+      || reqUrl.pathname.indexOf("tinywall.js") >= 0) {
     console.log(`No need to proxy ${reqUrl.href}`)
     return;
   }

@@ -226,6 +226,7 @@ function initHook(global) {
     }
 
     // dom change observe
+    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
     const observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
             if (mutation.type == 'childList') {
@@ -263,4 +264,20 @@ if ('serviceWorker' in navigator) {
     console.warn('[SW] is not supported in your browser');
     console.log('use hook method instead')
     initHook(self);
+}
+
+
+// Hide youtube title
+if (location.search.indexOf("notitle") >= 0) {
+    var css = 'div.ytp-show-cards-title, div.ytp-gradient-top { display: none; }';
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var style = document.createElement('style');
+    head.appendChild(style);
+    style.type = 'text/css';
+    if (style.styleSheet) {
+        // This is required for IE8 and below.
+        style.styleSheet.cssText = css;
+    } else {
+        style.appendChild(document.createTextNode(css));
+    }
 }
