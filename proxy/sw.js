@@ -43,10 +43,11 @@ const handleFetch = async (request) => {
 };
 
 const handleRequest = event => {
+  const scope = self.registration.scope;
   const reqUrl = new URL(event.request.url);
   console.log(`[SW] handle request ${reqUrl.href}`);
   if (reqUrl.href.startsWith(proxyPrefix) || !reqUrl.protocol.startsWith('http')
-      || reqUrl.pathname.indexOf("tinywall.js") >= 0) {
+      || reqUrl.href === scope || reqUrl.href === scope + '/tinywall.js') {
     console.log(`No need to proxy ${reqUrl.href}`)
     return;
   }

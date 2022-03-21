@@ -256,13 +256,17 @@ function initHook(global) {
 // Initialize proxy
 if (navigator.serviceWorker) {
     navigator.serviceWorker.register(`sw.js?p=${btoa(PREFIX)}&t=${btoa(TARGET_ORIGIN)}`).then(registration => {
-        console.log('[SW] proxy server ready, scope: ', registration.scope);
+        console.log('[SW] proxy server install, scope: ', registration.scope);
+        navigator.serviceWorker.ready.then(regReady => {
+            console.log(`[SW] is ready ${regReady}. Reload page.`);
+            window.location.reload();
+        });
     }).catch(err => {
         console.error('error registering SW:', err)
         initHook(self);
     });
 } else {
-    console.warn('[SW] is not supported in your browser');
+    console.warn('[SW] is not supported! Back to hook method.');
     console.log('use hook method instead')
     initHook(self);
 }
