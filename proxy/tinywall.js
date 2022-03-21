@@ -189,6 +189,24 @@ function initHook(global) {
         return apply(oldFn, this, arguments)
     })
 
+    // hook head insert method
+    const methodArr = ['insertBefore', 'appendChild']
+    methodArr.forEach(method => {
+        func(document.head, method, oldFn => function (...args) {
+            var node = args[0]
+            console.log("Insert node ", node)
+            if (node.src) {
+                node.src = proxyUrl(node.src)
+                console.log('proxy node.src=', node.src)
+            }
+            if (node.href) {
+                node.href = proxyUrl(node.href)
+                console.log('proxy node.href=', node.href)
+            }
+            return apply(oldFn, this, arguments)
+        })
+    })
+
     function proxyNode(node) {
         if (!node) {
             return
@@ -215,15 +233,15 @@ function initHook(global) {
             }
         }
         if (node.style) {
-            const regex = /url\(["']?(.*?)["']?\)/i
-            for (var k of node.style) {
-                const style = node.style[k].trim()
-                if (style.startsWith('url(')) {
-                    const oldUrl = style.replace(regex, '$1')
+            for (var i = 0; i < node.style.length; ++i) {
+                const styleName = node.style.item(i)
+                const styleItem = node.style.getPropertyValue(styleName)
+                if (styleItem.trim().startsWith('url(')) {
+                    const oldUrl = styleItem.replace(/url\(["']?(.*?)["']?\)/i, '$1')
                     const url = proxyUrl(oldUrl)
                     if (oldUrl != url) {
-                        node.style[k] = 'url("' + url + '")'
-                        console.log('url style to :' + node.style[k])
+                        node.style.setProperty(styleName, `url("${url}")`)
+                        console.log('url style to :' + node.style.getPropertyValue(styleName))
                     }
                 }
             }
