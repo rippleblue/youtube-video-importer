@@ -255,19 +255,17 @@ function initHook(global) {
 
 // Initialize proxy
 if (navigator.serviceWorker) {
-    try {
-        const registration = await navigator.serviceWorker.register(`sw.js?p=${btoa(PREFIX)}&t=${btoa(TARGET_ORIGIN)}`);
+    navigator.serviceWorker.register(`sw.js?p=${btoa(PREFIX)}&t=${btoa(TARGET_ORIGIN)}`).then(registration => {
         console.log('[SW] proxy server ready, scope: ', registration.scope);
-    } catch (err) {
+    }).catch(err => {
         console.error('error registering SW:', err)
         initHook(self);
-    }
+    });
 } else {
     console.warn('[SW] is not supported in your browser');
     console.log('use hook method instead')
     initHook(self);
 }
-
 
 // Hide youtube title
 if (location.search.indexOf("notitle") >= 0) {
