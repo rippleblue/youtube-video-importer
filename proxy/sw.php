@@ -48,7 +48,7 @@ const handleFetch = async (request) => {
 const handleRequest = event => {
   const reqUrl = new URL(event.request.url);
   console.log(`[SW] handle request ${reqUrl.href}`);
-  if (reqUrl.href.startsWith(proxyPrefix) || !reqUrl.protocol.startsWith('http')) {
+  if (reqUrl.href.startsWith(proxyPrefix) || !reqUrl.protocol.startsWith('http') || reqUrl.pathname.indexOf("tinywall.js") >= 0) {
     console.log(`No need to proxy ${reqUrl.href}`)
     return;
   }

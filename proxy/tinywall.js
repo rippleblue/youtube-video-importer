@@ -254,20 +254,14 @@ function initHook(global) {
 }
 
 // Initialize proxy
-if ('serviceWorker' in navigator) {
-    (async () => {
+if (navigator.serviceWorker) {
+    try {
         const registration = await navigator.serviceWorker.register(`sw.js?p=${btoa(PREFIX)}&t=${btoa(TARGET_ORIGIN)}`);
-        try {
-            await navigator.serviceWorker.ready
-            console.log('[SW] proxy server ready');
-        } catch (err) {
-            console.error('error registering SW:', err)
-            initHook(self);
-        }
-        window.addEventListener('beforeunload', async () => {
-            //await registration.unregister();
-        });
-    })();
+        console.log('[SW] proxy server ready, scope: ', registration.scope);
+    } catch (err) {
+        console.error('error registering SW:', err)
+        initHook(self);
+    }
 } else {
     console.warn('[SW] is not supported in your browser');
     console.log('use hook method instead')
