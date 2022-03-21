@@ -257,10 +257,15 @@ function initHook(global) {
 if (navigator.serviceWorker) {
     navigator.serviceWorker.register(`sw.js?p=${btoa(PREFIX)}&t=${btoa(TARGET_ORIGIN)}`).then(registration => {
         console.log('[SW] proxy server install, scope: ', registration.scope);
-        navigator.serviceWorker.ready.then(regReady => {
-            console.log(`[SW] is ready ${regReady}. Reload page.`);
-            window.location.reload();
-        });
+        if (registration.installing) {
+            const sw = registration.installing || registration.waiting;
+            sw.onstatechange = function () {
+                if (sw.state === 'installed') {
+                    // SW installed.  Refresh page so SW can respond with SW-enabled page.
+                    window.location.reload();
+                }
+            };
+        }
     }).catch(err => {
         console.error('error registering SW:', err)
         initHook(self);
