@@ -507,7 +507,7 @@ function rewriteResponseHeaders($rawResponseHeaders, $requestUrl, $responseURL)
     if (!preg_match($header_blacklist_pattern, $header)) {
       header($header, false);
     } elseif (stripos($header, "content-length") !== false) {
-      if (isRewriteType($rawResponseHeaders)) {
+      if (!isRewriteType($rawResponseHeaders)) {
         header($header, false);    // Output the origin content-length if we don't need to rewrite body
       }
     }
@@ -589,6 +589,8 @@ function makeRequest($url)
       curl_setopt($ch, CURLOPT_PUT, true);
       curl_setopt($ch, CURLOPT_INFILE, fopen("php://input", "r"));
       break;
+    case "HEAD":
+      curl_setopt($ch, CURLOPT_NOBODY, true);
     default:
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_SERVER["REQUEST_METHOD"]);
       break;
