@@ -398,7 +398,7 @@ function rewriteHtml($responseBody, $url)
 // Extract user's request url from server parameters
 function getRequestUrl()
 {
-  if (!isset($_SERVER["QUERY_STRING"]) || $_SERVER["REQUEST_URI"]) {
+  if (!isset($_SERVER["QUERY_STRING"]) || !isset($_SERVER["REQUEST_URI"])) {
     die("Proxy target url is not set as parameter!");
   }
 
