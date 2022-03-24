@@ -71,6 +71,10 @@ $prefixHost = strpos($prefixHost, ":") ? implode(":", explode(":", $_SERVER["HTT
 define("PROXY_PREFIX", "http" . (isset($_SERVER["HTTPS"]) ? "s" : "") . "://" . $prefixHost . $prefixPort . $_SERVER["SCRIPT_NAME"] . "?");
 define("SERVER_ORIGIN", "http" . (isset($_SERVER["HTTPS"]) ? "s" : "") . "://" . $prefixHost . $prefixPort);
 
+// Proxy request url
+$url = getRequestUrl();
+makeRequest($url);
+
 /**
  * Helper functions definition
  */
@@ -82,56 +86,56 @@ function getHostnamePattern($hostname)
   return "@^https?://([a-z0-9-]+\.)*" . $escapedHostname . "@i";
 }
 
+//Validates a URL against the whitelist.
+function passesWhitelist($url)
+{
+  if (count($GLOBALS['whitelistPatterns']) === 0) return true;
+  foreach ($GLOBALS['whitelistPatterns'] as $pattern) {
+    if (preg_match($pattern, $url)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+//Validates a URL against the blacklist.
+function passesBlacklist($url)
+{
+  foreach ($GLOBALS['blacklistPatterns'] as $pattern) {
+    if (preg_match($pattern, $url)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isLocal($url)
+{
+  //First, generate a list of IP addresses that correspond to the requested URL.
+  $ips = [];
+  $host = parse_url($url, PHP_URL_HOST);
+  if (filter_var($host, FILTER_VALIDATE_IP)) {
+    //The supplied host is already a valid IP address.
+    $ips = [$host];
+  } else {
+    //The host is not a valid IP address; attempt to resolve it to one.
+    $dnsResult = dns_get_record($host, DNS_A + DNS_AAAA);
+    $ips = array_map(function ($dnsRecord) {
+      return $dnsRecord['type'] == 'A' ? $dnsRecord['ip'] : $dnsRecord['ipv6'];
+    }, $dnsResult);
+  }
+  foreach ($ips as $ip) {
+    //Determine whether any of the IPs are in the private or reserved range.
+    if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 //Helper function that determines whether to allow proxying of a given URL.
 function isValidURL($url)
 {
-  //Validates a URL against the whitelist.
-  function passesWhitelist($url)
-  {
-    if (count($GLOBALS['whitelistPatterns']) === 0) return true;
-    foreach ($GLOBALS['whitelistPatterns'] as $pattern) {
-      if (preg_match($pattern, $url)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  //Validates a URL against the blacklist.
-  function passesBlacklist($url)
-  {
-    foreach ($GLOBALS['blacklistPatterns'] as $pattern) {
-      if (preg_match($pattern, $url)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function isLocal($url)
-  {
-    //First, generate a list of IP addresses that correspond to the requested URL.
-    $ips = [];
-    $host = parse_url($url, PHP_URL_HOST);
-    if (filter_var($host, FILTER_VALIDATE_IP)) {
-      //The supplied host is already a valid IP address.
-      $ips = [$host];
-    } else {
-      //The host is not a valid IP address; attempt to resolve it to one.
-      $dnsResult = dns_get_record($host, DNS_A + DNS_AAAA);
-      $ips = array_map(function ($dnsRecord) {
-        return $dnsRecord['type'] == 'A' ? $dnsRecord['ip'] : $dnsRecord['ipv6'];
-      }, $dnsResult);
-    }
-    foreach ($ips as $ip) {
-      //Determine whether any of the IPs are in the private or reserved range.
-      if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   return passesWhitelist($url) && passesBlacklist($url) && ($GLOBALS['disallowLocal'] ? !isLocal($url) : true);
 }
 
@@ -197,7 +201,7 @@ function rewriteRequestHeaders($url)
   }
 
   //Tell cURL to make the request using the brower's user-agent if there is one, or a fallback user-agent otherwise.
-  $user_agent = $_SERVER["HTTP_USER_AGENT"];
+  $user_agent = isset($_SERVER["HTTP_USER_AGENT"]) ? $_SERVER["HTTP_USER_AGENT"] : '';
   if (empty($user_agent)) {
     $user_agent = "Mozilla/5.0 (compatible; tinywallProxy)";
   }
@@ -394,6 +398,10 @@ function rewriteHtml($responseBody, $url)
 // Extract user's request url from server parameters
 function getRequestUrl()
 {
+  if (!isset($_SERVER["QUERY_STRING"]) || $_SERVER["REQUEST_URI"]) {
+    die("Proxy target url is not set as parameter!");
+  }
+
   //Extract and sanitize the requested URL, handling cases where forms have been rewritten to point to the proxy.
   if (isset($_POST["miniProxyFormAction"])) {
     $url = $_POST["miniProxyFormAction"];
@@ -624,7 +632,3 @@ function makeRequest($url)
   }
   curl_close($ch);
 }
-
-// Proxy request url
-$url = getRequestUrl();
-makeRequest($url);
