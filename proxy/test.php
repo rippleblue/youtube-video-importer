@@ -1,5 +1,6 @@
 <?php
 /*
+tinywallProxy is a web proxy based on miniProxy
 miniProxy - A simple PHP web proxy. <https://github.com/joshdick/miniProxy>
 Written and maintained by Joshua Dick <http://joshdick.net>.
 miniProxy is licensed under the GNU GPL v3 <https://www.gnu.org/licenses/gpl-3.0.html>.
@@ -69,10 +70,6 @@ $prefixHost = strpos($prefixHost, ":") ? implode(":", explode(":", $_SERVER["HTT
 
 define("PROXY_PREFIX", "http" . (isset($_SERVER["HTTPS"]) ? "s" : "") . "://" . $prefixHost . $prefixPort . $_SERVER["SCRIPT_NAME"] . "?");
 define("SERVER_ORIGIN", "http" . (isset($_SERVER["HTTPS"]) ? "s" : "") . "://" . $prefixHost . $prefixPort);
-
-// Proxy request url
-$url = getRequestUrl();
-makeRequest($url);
 
 /**
  * Helper functions definition
@@ -227,123 +224,6 @@ function rewriteRequestHeaders($url)
   }
 
   return $curlRequestHeaders;
-}
-
-// If content-type is html or css, we need to rewrite the url in the content
-function isRewriteType($contentType)
-{
-  if (!isset($contentType) || $contentType === null) {
-    return false;
-  }
-  if (stripos($contentType, 'text/html') !== false || stripos($contentType, 'text/css') !== false) {
-    return true;
-  }
-  return false;
-}
-
-// Callback header function for curl to process response headers
-function parseHeader($ch, $header)
-{
-  // end of header
-  if (strlen(trim($header)) <= 0) {
-    $rawResponseHeaders = ob_get_contents();
-    ob_end_clean();
-
-    // Rewrite headers
-    $responseInfo = curl_getinfo($ch);
-    $responseURL = $responseInfo["url"];
-    rewriteResponseHeaders($rawResponseHeaders, getRequestUrl(), $responseURL);
-
-    // Rewrite response body
-    $contentType = isset($responseInfo["content_type"]) ? $responseInfo["content_type"] : null;
-    if (isRewriteType($contentType)) {
-      ob_start();
-    }
-    return 0;
-  }
-  return strlen($header);
-}
-
-//Makes an HTTP request via cURL, using request data that was passed directly to this script.
-function makeRequest($url)
-{
-  ob_start();
-  $ch = curl_init();
-  //curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
-  curl_setopt($ch, CURLOPT_HTTPHEADER, rewriteRequestHeaders($url));
-  curl_setopt($ch, CURLOPT_ENCODING, "");
-
-  //Proxy any received GET/POST/PUT data.
-  switch ($_SERVER["REQUEST_METHOD"]) {
-    case "POST":
-      curl_setopt($ch, CURLOPT_POST, true);
-      //For some reason, $HTTP_RAW_POST_DATA isn't working as documented at
-      //http://php.net/manual/en/reserved.variables.httprawpostdata.php
-      //but the php://input method works. This is likely to be flaky
-      //across different server environments.
-      //More info here: http://stackoverflow.com/questions/8899239/http-raw-post-data-not-being-populated-after-upgrade-to-php-5-3
-      $contentType = '';
-      $browserRequestHeaders = getallheaders();
-      foreach ($browserRequestHeaders as $key => $val) {
-        if (strtolower($key) == 'content-type') {
-          $contentType = strtolower($val);
-          break;
-        }
-      }
-      $postContent = file_get_contents("php://input");
-      if (empty($contentType) && stripos($contentType, 'x-www-form-urlencoded') >= 0) {
-        $postData = [];
-        parse_str($postContent, $postData);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-      } else {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postContent);
-      }
-      break;
-    case "PUT":
-      curl_setopt($ch, CURLOPT_PUT, true);
-      curl_setopt($ch, CURLOPT_INFILE, fopen("php://input", "r"));
-      break;
-    default:
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_SERVER["REQUEST_METHOD"]);
-      break;
-  }
-
-  //Other cURL options.
-  curl_setopt($ch, CURLOPT_HEADER, true);
-  curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'parseHeader');
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-
-  //Set the request URL.
-  curl_setopt($ch, CURLOPT_URL, $url);
-
-  // Output debug info to file /tmp
-  curl_setopt($ch, CURLOPT_VERBOSE, true);
-  curl_setopt($ch, CURLOPT_STDERR, fopen('/tmp/curl.log', 'w+'));
-
-  // Make the request.
-  curl_exec($ch);
-  $responseInfo = curl_getinfo($ch);
-  $contentType = isset($responseInfo["content_type"]) ? $responseInfo["content_type"] : null;
-
-  // Rewrite body
-  if (isRewriteType($contentType)) {
-    $responseBody = ob_get_contents();
-    ob_end_clean();
-
-    // Rewrite 
-    $rewriteResponse = $responseBody;
-    if (stripos($contentType, "text/html") !== false) {
-      $rewriteResponse = "<!-- Proxified page constructed by tinywallProxy -->\n" . rewriteHtml($responseBody, $url);
-    } elseif (stripos($contentType, "text/css") !== false) {
-      $rewriteResponse = proxifyCSS($responseBody, $url);
-    }
-    header("Content-Length: " . strlen($rewriteResponse), true);
-    ob_start("ob_gzhandler");
-    echo $rewriteResponse;
-    ob_end_flush();
-  }
-  curl_close($ch);
 }
 
 //Converts relative URLs to absolute ones, given a base URL.
@@ -537,6 +417,7 @@ function getRequestUrl()
     $pos = strpos($url, ":/");
     $url = substr_replace($url, "://", $pos, strlen(":/"));
   }
+
   $scheme = parse_url($url, PHP_URL_SCHEME);
   if (empty($scheme)) {
     if (strpos($url, "//") === 0) {
@@ -555,6 +436,42 @@ function getRequestUrl()
   }
 
   return $url;
+}
+
+
+// If content-type is html or css, we need to rewrite the url in the content
+function isRewriteType($contentType)
+{
+  if (!isset($contentType) || $contentType === null) {
+    return false;
+  }
+  if (stripos($contentType, 'text/html') !== false || stripos($contentType, 'text/css') !== false) {
+    return true;
+  }
+  return false;
+}
+
+// Callback header function for curl to process response headers
+function parseHeader($ch, $header)
+{
+  // end of header
+  if (strlen(trim($header)) <= 0) {
+    $rawResponseHeaders = ob_get_contents();
+    ob_end_clean();
+
+    // Rewrite headers
+    $responseInfo = curl_getinfo($ch);
+    $responseURL = $responseInfo["url"];
+    rewriteResponseHeaders($rawResponseHeaders, getRequestUrl(), $responseURL);
+
+    // Rewrite response body
+    $contentType = isset($responseInfo["content_type"]) ? $responseInfo["content_type"] : null;
+    if (isRewriteType($contentType)) {
+      ob_start();
+    }
+    return 0;
+  }
+  return strlen($header);
 }
 
 /**
@@ -625,3 +542,89 @@ function rewriteResponseHeaders($rawResponseHeaders, $requestUrl, $responseURL)
     }
   }
 }
+
+//Makes an HTTP request via cURL, using request data that was passed directly to this script.
+function makeRequest($url)
+{
+  ob_start();
+  $ch = curl_init();
+  //curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, rewriteRequestHeaders($url));
+  curl_setopt($ch, CURLOPT_ENCODING, "");
+
+  //Proxy any received GET/POST/PUT data.
+  switch ($_SERVER["REQUEST_METHOD"]) {
+    case "POST":
+      curl_setopt($ch, CURLOPT_POST, true);
+      //For some reason, $HTTP_RAW_POST_DATA isn't working as documented at
+      //http://php.net/manual/en/reserved.variables.httprawpostdata.php
+      //but the php://input method works. This is likely to be flaky
+      //across different server environments.
+      //More info here: http://stackoverflow.com/questions/8899239/http-raw-post-data-not-being-populated-after-upgrade-to-php-5-3
+      $contentType = '';
+      $browserRequestHeaders = getallheaders();
+      foreach ($browserRequestHeaders as $key => $val) {
+        if (strtolower($key) == 'content-type') {
+          $contentType = strtolower($val);
+          break;
+        }
+      }
+      $postContent = file_get_contents("php://input");
+      if (empty($contentType) && stripos($contentType, 'x-www-form-urlencoded') >= 0) {
+        $postData = [];
+        parse_str($postContent, $postData);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+      } else {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postContent);
+      }
+      break;
+    case "PUT":
+      curl_setopt($ch, CURLOPT_PUT, true);
+      curl_setopt($ch, CURLOPT_INFILE, fopen("php://input", "r"));
+      break;
+    default:
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_SERVER["REQUEST_METHOD"]);
+      break;
+  }
+
+  //Other cURL options.
+  curl_setopt($ch, CURLOPT_HEADER, true);
+  curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'parseHeader');
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+
+  //Set the request URL.
+  curl_setopt($ch, CURLOPT_URL, $url);
+
+  // Output debug info to file /tmp
+  curl_setopt($ch, CURLOPT_VERBOSE, true);
+  curl_setopt($ch, CURLOPT_STDERR, fopen('/tmp/curl.log', 'w+'));
+
+  // Make the request.
+  curl_exec($ch);
+  $responseInfo = curl_getinfo($ch);
+  $contentType = isset($responseInfo["content_type"]) ? $responseInfo["content_type"] : null;
+
+  // Rewrite body
+  if (isRewriteType($contentType)) {
+    $responseBody = ob_get_contents();
+    ob_end_clean();
+
+    // Rewrite 
+    $rewriteResponse = $responseBody;
+    if (stripos($contentType, "text/html") !== false) {
+      $rewriteResponse = "<!-- Proxified page constructed by tinywallProxy -->\n" . rewriteHtml($responseBody, $url);
+    } elseif (stripos($contentType, "text/css") !== false) {
+      $rewriteResponse = proxifyCSS($responseBody, $url);
+    }
+    header("Content-Length: " . strlen($rewriteResponse), true);
+    ob_start("ob_gzhandler");
+    echo $rewriteResponse;
+    ob_end_flush();
+  }
+  curl_close($ch);
+}
+
+// Proxy request url
+$url = getRequestUrl();
+makeRequest($url);
