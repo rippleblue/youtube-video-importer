@@ -310,6 +310,7 @@ function makeRequest($url)
 
   //Other cURL options.
   curl_setopt($ch, CURLOPT_HEADER, true);
+  curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'parseHeader');
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
 
