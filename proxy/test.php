@@ -506,11 +506,13 @@ function rewriteResponseHeaders($rawResponseHeaders, $requestUrl, $responseURL)
     $header = trim($header);
     if (!preg_match($header_blacklist_pattern, $header)) {
       header($header, false);
-    } elseif (stripos($header, "content-length") !== false) {
+    }
+    /*
+     elseif (stripos($header, "content-length") !== false) {
       if (!isRewriteType($rawResponseHeaders)) {
         header($header, false);    // Output the origin content-length if we don't need to rewrite body
       }
-    }
+    }*/
   }
 
   //Prevent robots from indexing proxified pages
