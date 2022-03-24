@@ -331,7 +331,7 @@ function proxifySrcset($srcset, $baseURL) {
   $proxifiedSources = array_map(function($source) use ($baseURL) {
     $components = array_map("trim", str_split($source, strrpos($source, " "))); //Split by last space and trim
     $components[0] = PROXY_PREFIX . rel2abs(ltrim($components[0], "/"), $baseURL); //First component of the split source string should be an image URL; proxify it
-    return implode($components, " "); //Recombine the components into a single source
+    return implode(" ", $components); //Recombine the components into a single source
   }, $sources);
   $proxifiedSrcset = implode(", ", $proxifiedSources); //Recombine the sources into a single "srcset"
   return $proxifiedSrcset;
