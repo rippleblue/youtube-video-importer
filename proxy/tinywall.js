@@ -16,6 +16,12 @@ const {
 } = Reflect
 
 function proxyUrl(url) {
+    if (!url) {
+        return url;
+    }
+    if (typeof (url) !== 'string') {
+        url = url.toString();
+    }
     if (url.startsWith(PREFIX)) {
         return url;
     }
@@ -117,23 +123,16 @@ function initHook(global) {
         }
     )
 
-    // hook Image src
-    const imgProto = global['Image'].prototype
-    prop(imgProto, 'src', null,
-        setter => function (val) {
-            setter.call(this, proxyUrl(val))
-            console.log(`proxy img.src=${val} to ` + this.src)
-        }
-    )
-
-    // hook media src
-    const mediaProto = global['HTMLMediaElement'].prototype
-    prop(mediaProto, 'src', null,
-        setter => function (val) {
-            setter.call(this, proxyUrl(val))
-            console.log(`proxy media.src=${val} to ` + this.src)
-        }
-    );
+    // hook src attribute
+    const srcElement = ['Image', 'HTMLMediaElement', 'HTMLScriptElement']
+    srcElement.forEach(ele => {
+        const eleProto = global[ele].prototype
+        prop(eleProto, 'src', null,
+            setter => function (val) {
+                setter.call(this, proxyUrl(val))
+                console.log(`proxy ${this.tagName}.src=${val} to ${this.src}`)
+            })
+    })
 
     // hook AJAX API
     const xhrProto = global['XMLHttpRequest'].prototype
@@ -150,7 +149,6 @@ function initHook(global) {
             return decUrlStrRel(val, this)
         }
     )
-
 
     func(global, 'fetch', oldFn => function (v) {
         if (v) {
@@ -203,14 +201,20 @@ function initHook(global) {
     methodArr.forEach(method => {
         func(document.head, method, oldFn => function (...args) {
             var node = args[0]
-            console.log("Insert node ", node)
+            console.log("Insert head node ", node)
             if (node.src) {
-                node.src = proxyUrl(node.src)
-                console.log('proxy node.src=', node.src)
+                const url = proxyUrl(node.src)
+                if (url != node.src) {
+                    node.src = url;
+                    console.log('proxy node.src=', node.src)
+                }
             }
             if (node.href) {
-                node.href = proxyUrl(node.href)
-                console.log('proxy node.href=', node.href)
+                const url = proxyUrl(node.href)
+                if (url != node.href) {
+                    node.href = url
+                    console.log('proxy node.href=', node.href)
+                }
             }
             return apply(oldFn, this, arguments)
         })
