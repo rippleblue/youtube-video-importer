@@ -126,6 +126,15 @@ function initHook(global) {
         }
     )
 
+    // hook media src
+    const mediaProto = global['HTMLMediaElement'].prototype
+    prop(mediaProto, 'src', null,
+        setter => function (val) {
+            setter.call(this, proxyUrl(val))
+            console.log(`proxy media.src=${val} to ` + this.src)
+        }
+    );
+
     // hook AJAX API
     const xhrProto = global['XMLHttpRequest'].prototype
     func(xhrProto, 'open', oldFn => function (_0, url) {
@@ -269,16 +278,6 @@ function initHook(global) {
         attributeFilter: ['src', 'href', 'style'],
         subtree: true
     });
-
-    // hook video src
-    document.addEventListener('play', function (e) {
-        console.log("video started: ", e.target.src);
-        var url = proxyUrl(e.target.src);
-        if (url != e.target.src) {
-            e.target.src = url
-            console.log("proxy video.src=", e.target.src)
-        }
-    }, true);
 }
 
 // Initialize proxy
