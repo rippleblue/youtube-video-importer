@@ -269,6 +269,16 @@ function initHook(global) {
         attributeFilter: ['src', 'href', 'style'],
         subtree: true
     });
+
+    // hook video src
+    document.addEventListener('play', function (e) {
+        console.log("video started: ", e.target.src);
+        var url = proxyUrl(e.target.src);
+        if (url != e.target.src) {
+            e.target.src = url
+            console.log("proxy video.src=", e.target.src)
+        }
+    }, true);
 }
 
 // Initialize proxy
