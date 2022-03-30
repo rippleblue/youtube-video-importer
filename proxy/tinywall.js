@@ -295,8 +295,8 @@ if (navigator.serviceWorker) {
 }
 
 // Hide youtube title
-if (location.search.indexOf("notitle") >= 0) {
-    var css = 'div.ytp-show-cards-title, div.ytp-gradient-top { display: none; }';
+if (location.search.indexOf("notitle") >= 0 || location.search.indexOf("showinfo=0")) {
+    var css = 'div.ytp-show-cards-title, div.ytp-gradient-top, div.iv-branding { display: none; }';
     var head = document.head || document.getElementsByTagName('head')[0];
     var style = document.createElement('style');
     head.appendChild(style);
