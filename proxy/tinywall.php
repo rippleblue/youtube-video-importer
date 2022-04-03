@@ -622,7 +622,7 @@ function makeRequest($url)
     } elseif (stripos($contentType, "text/css") !== false) {
       $rewriteResponse = proxifyCSS($responseBody, $url);
     }
-    header("Content-Length: " . strlen($rewriteResponse), true);
+    //header("Content-Length: " . strlen($rewriteResponse), true);
     ob_start("ob_gzhandler");
     echo $rewriteResponse;
     ob_end_flush();
